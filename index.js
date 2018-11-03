@@ -23,7 +23,13 @@ class SignaturePad extends Component {
       + injectedSignaturePad
       + injectedApplication(props.penColor, backgroundColor, props.dataURL);
     var html = htmlContent(injectedJavaScript);
+    this.onMessage = this.onMessage.bind(this);
     this.source = {html}; //We don't use WebView's injectedJavaScript because on Android, the WebView re-injects the JavaScript upon every url change. Given that we use url changes to communicate signature changes to the React Native app, the JS is re-injected every time a stroke is drawn.
+  }
+
+  onMessage = (event) => {
+    var base64DataUrl = JSON.parse(event.nativeEvent.data);
+    this._bridged_finishedStroke(base64DataUrl);
   }
 
   _onNavigationChange = (args) => {
@@ -100,6 +106,7 @@ class SignaturePad extends Component {
     return (
         <WebView automaticallyAdjustContentInsets={false}
                  onNavigationStateChange={this._onNavigationChange}
+                 onMessage={this.onMessage}
                  renderError={this._renderError}
                  renderLoading={this._renderLoading}
                  source={this.source}
